@@ -27,6 +27,10 @@ type PlayerResponse = {
   recentScores: RecentScore[];
 };
 
+type PlayerResult =
+  | { id: string; status: "success"; data: PlayerResponse }
+  | { id: string; status: "error"; message: string };
+
 export default function PlayerPage() {
   const params = useParams();
   const id =
@@ -35,6 +39,63 @@ export default function PlayerPage() {
       : Array.isArray(params?.id)
         ? params.id[0]
         : "";
+
+  const [result, setResult] = useState<PlayerResult | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    let isActive = true;
+
+    fetch(`/api/players/${id}`)
+      .then(async (response) => {
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as
+            | { error?: string }
+            | null;
+          throw new Error(payload?.error ?? "Unable to load player");
+        }
+        return response.json() as Promise<PlayerResponse>;
+      })
+      .then((payload) => {
+        if (isActive) {
+          setResult({ id, status: "success", data: payload });
+        }
+      })
+      .catch((err) => {
+        if (isActive) {
+          setResult({
+            id,
+            status: "error",
+            message: err instanceof Error ? err.message : "Unable to load player",
+          });
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [id]);
+
+  const loading = Boolean(id) && (!result || result.id !== id);
+  const error =
+    result?.id === id && result.status === "error" ? result.message : null;
+  const data =
+    result?.id === id && result.status === "success" ? result.data : null;
+
+  const recentRounds = useMemo(
+    () =>
+      data?.recentScores.map((score) => ({
+        roundId: score.round.id,
+        week: score.round.week,
+        date: new Date(score.round.date).toISOString().slice(0, 10),
+        gross: score.gross,
+        net: score.net,
+      })) ?? [],
+    [data]
+  );
 
   if (!id) {
     return (
@@ -58,60 +119,6 @@ export default function PlayerPage() {
       </section>
     );
   }
-
-  const [data, setData] = useState<PlayerResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      return;
-    }
-
-    let isActive = true;
-    setLoading(true);
-    setError(null);
-
-    fetch(`/api/players/${id}`)
-      .then(async (response) => {
-        if (!response.ok) {
-          const payload = (await response.json().catch(() => null)) as
-            | { error?: string }
-            | null;
-          throw new Error(payload?.error ?? "Unable to load player");
-        }
-        return response.json() as Promise<PlayerResponse>;
-      })
-      .then((payload) => {
-        if (isActive) {
-          setData(payload);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        if (isActive) {
-          setError(err instanceof Error ? err.message : "Unable to load player");
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      isActive = false;
-    };
-  }, [id]);
-
-  const recentRounds = useMemo(
-    () =>
-      data?.recentScores.map((score) => ({
-        roundId: score.round.id,
-        week: score.round.week,
-        date: new Date(score.round.date).toISOString().slice(0, 10),
-        gross: score.gross,
-        net: score.net,
-      })) ?? [],
-    [data]
-  );
 
   if (loading) {
     return (

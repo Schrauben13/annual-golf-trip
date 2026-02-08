@@ -26,6 +26,10 @@ type RoundResponse = {
   scores: RoundScore[];
 };
 
+type RoundResult =
+  | { id: string; status: "success"; data: RoundResponse }
+  | { id: string; status: "error"; message: string };
+
 export default function RoundDetailPage() {
   const params = useParams();
   const id =
@@ -35,19 +39,14 @@ export default function RoundDetailPage() {
         ? params.id[0]
         : "";
 
-  const [data, setData] = useState<RoundResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<RoundResult | null>(null);
 
   useEffect(() => {
     if (!id) {
-      setLoading(false);
       return;
     }
 
     let isActive = true;
-    setLoading(true);
-    setError(null);
 
     fetch(`/api/rounds/${id}`)
       .then(async (response) => {
@@ -61,14 +60,16 @@ export default function RoundDetailPage() {
       })
       .then((payload) => {
         if (isActive) {
-          setData(payload);
-          setLoading(false);
+          setResult({ id, status: "success", data: payload });
         }
       })
       .catch((err) => {
         if (isActive) {
-          setError(err instanceof Error ? err.message : "Unable to load round");
-          setLoading(false);
+          setResult({
+            id,
+            status: "error",
+            message: err instanceof Error ? err.message : "Unable to load round",
+          });
         }
       });
 
@@ -76,6 +77,34 @@ export default function RoundDetailPage() {
       isActive = false;
     };
   }, [id]);
+
+  const loading = Boolean(id) && (!result || result.id !== id);
+  const error =
+    result?.id === id && result.status === "error" ? result.message : null;
+  const data =
+    result?.id === id && result.status === "success" ? result.data : null;
+
+  const round = data?.round;
+  const roundScores = useMemo(() => data?.scores ?? [], [data]);
+  const allNetPresent = roundScores.every(
+    (score) => score.net !== null && score.net !== undefined
+  );
+
+  const leaderboard = useMemo(() => {
+    return roundScores
+      .map((score) => ({
+        id: score.id,
+        playerName: score.player.name,
+        gross: score.gross,
+        net: score.net ?? null,
+      }))
+      .sort((a, b) => {
+        if (allNetPresent) {
+          return (a.net ?? 0) - (b.net ?? 0);
+        }
+        return a.gross - b.gross;
+      });
+  }, [roundScores, allNetPresent]);
 
   if (loading) {
     return (
@@ -111,8 +140,6 @@ export default function RoundDetailPage() {
     );
   }
 
-  const round = data?.round;
-
   if (!round) {
     return (
       <section className="space-y-4">
@@ -136,27 +163,6 @@ export default function RoundDetailPage() {
       </section>
     );
   }
-
-  const roundScores = data?.scores ?? [];
-  const allNetPresent = roundScores.every(
-    (score) => score.net !== null && score.net !== undefined
-  );
-
-  const leaderboard = useMemo(() => {
-    return roundScores
-      .map((score) => ({
-        id: score.id,
-        playerName: score.player.name,
-        gross: score.gross,
-        net: score.net ?? null,
-      }))
-      .sort((a, b) => {
-        if (allNetPresent) {
-          return (a.net ?? 0) - (b.net ?? 0);
-        }
-        return a.gross - b.gross;
-      });
-  }, [roundScores, allNetPresent]);
 
   return (
     <section className="space-y-5">
