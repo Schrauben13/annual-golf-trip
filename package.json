@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "ts-node prisma/seed.ts",
+    "seed": "node prisma/seed.mjs",
     "postinstall": "prisma generate",
     "vercel-build": "prisma migrate deploy && prisma generate && next build"
   },

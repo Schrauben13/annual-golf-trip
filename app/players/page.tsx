@@ -1,8 +1,18 @@
 import Link from "next/link";
-import { getPlayers } from "../lib/leagueRepo";
+import { getLatestSeason, getPlayersForSeason } from "../lib/leagueRepo";
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export default async function PlayersPage() {
-  const players = await getPlayers();
+  const season = await getLatestSeason();
+  const players = season ? await getPlayersForSeason(season.id) : [];
 
   return (
     <section className="space-y-4">
@@ -14,7 +24,7 @@ export default async function PlayersPage() {
           Players
         </h1>
         <p className="text-base text-zinc-700">
-          Select a player to view details and recent rounds.
+          {season?.name ?? "Trip season"} roster.
         </p>
       </div>
 
@@ -23,11 +33,16 @@ export default async function PlayersPage() {
           <Link
             key={player.id}
             href={`/players/${player.id}`}
-            className="rounded-lg border bg-white p-4 transition hover:shadow-sm"
+            className="trip-card rounded-lg p-4 transition hover:shadow-sm"
             style={{ borderColor: "var(--augusta-gold)" }}
           >
-            <div className="text-base font-semibold text-zinc-900">
-              {player.name}
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-700 text-sm font-bold text-white">
+                {getInitials(player.name)}
+              </div>
+              <div className="text-base font-semibold text-zinc-900">
+                {player.name}
+              </div>
             </div>
             <div className="text-sm text-zinc-700">
               Handicap Index:{" "}
@@ -37,13 +52,6 @@ export default async function PlayersPage() {
             </div>
           </Link>
         ))}
-      </div>
-
-      <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-        <div>Player link hrefs:</div>
-        <div>
-          {players.map((player) => `/players/${player.id}`).join(", ")}
-        </div>
       </div>
     </section>
   );

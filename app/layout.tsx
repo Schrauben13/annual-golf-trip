@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
+import MobileNav from "./components/MobileNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Golf League Manager",
-  description: "Manage seasons, players, rounds, and standings",
+  title: "Kiawah Island Golf Trip 2026",
+  description: "Track players, rounds, scores, and standings for the trip",
 };
 
 export default function RootLayout({
@@ -38,32 +40,40 @@ export default function RootLayout({
             }}
           >
             <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-3 px-5 py-4 text-sm font-medium text-white">
+              <Image
+                src="/kiawah-logo.png"
+                alt="Kiawah Island 2026 logo"
+                width={44}
+                height={44}
+                className="rounded-sm border border-white/20"
+                priority
+              />
               <span className="mr-2 text-base font-semibold text-white">
-                Not So Sharp Shooters
+                Kiawah Island Trip
               </span>
               <Link
-                className="hover:opacity-90"
+                className="hidden hover:opacity-90 sm:inline"
                 href="/"
                 style={{ color: "var(--augusta-cream)" }}
               >
-                Dashboard
+                Trip Home
               </Link>
               <Link
-                className="hover:opacity-90"
+                className="hidden hover:opacity-90 sm:inline"
                 href="/players"
                 style={{ color: "var(--augusta-cream)" }}
               >
                 Players
               </Link>
               <Link
-                className="hover:opacity-90"
+                className="hidden hover:opacity-90 sm:inline"
                 href="/rounds"
                 style={{ color: "var(--augusta-cream)" }}
               >
                 Rounds
               </Link>
               <Link
-                className="hover:opacity-90"
+                className="hidden hover:opacity-90 sm:inline"
                 href="/standings"
                 style={{ color: "var(--augusta-cream)" }}
               >
@@ -71,9 +81,10 @@ export default function RootLayout({
               </Link>
             </nav>
           </header>
-          <main className="mx-auto w-full max-w-5xl px-5 py-10">
+          <main className="mx-auto w-full max-w-5xl px-5 py-10 pb-24 sm:pb-10">
             {children}
           </main>
+          <MobileNav />
         </div>
       </body>
     </html>

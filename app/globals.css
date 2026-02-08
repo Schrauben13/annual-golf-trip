@@ -25,11 +25,25 @@
 
 body {
   background: var(--background);
-  background-image: var(--background-image);
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(6, 16, 42, 0.62),
+      rgba(9, 24, 54, 0.52),
+      rgba(10, 22, 45, 0.62)
+    ),
+    var(--background-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.trip-card {
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 24px rgba(7, 20, 45, 0.15);
+  backdrop-filter: blur(2px);
 }
