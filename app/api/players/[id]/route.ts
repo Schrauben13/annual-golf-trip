@@ -1,13 +1,14 @@
 import { getPlayerById, getRecentScoresForPlayer } from "@/app/lib/leagueRepo";
 
 type RouteParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function GET(_: Request, { params }: RouteParams) {
-  const player = await getPlayerById(params.id);
+  const { id } = await params;
+  const player = await getPlayerById(id);
 
   if (!player) {
     return Response.json({ error: "Player not found" }, { status: 404 });

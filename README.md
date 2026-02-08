@@ -1,56 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Annual Golf Trip (Kiawah 2026)
 
-## Getting Started
+A Next.js app for sharing Kiawah Island golf trip info with your group.
 
-First, run the development server:
+Current mode is **no database**:
+- Trip data is hardcoded in `app/lib/mockLeague.ts`
+- Runtime data access is in-memory via `app/lib/leagueRepo.ts`
+- Score edits (if enabled) are process-memory only and reset on deploy/restart
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Run Locally
-
-1. Install dependencies:
+## Local Run
 
 ```bash
 npm install
-```
-
-2. Start the dev server:
-
-```bash
 npm run dev
 ```
 
-3. Open the app:
+Open [http://localhost:3000](http://localhost:3000).
 
-```bash
-http://localhost:3000
-```
+## Deploy (Vercel)
 
-## Learn More
+1. Push this repo to GitHub.
+2. In Vercel, click **New Project** and import `annual-golf-trip`.
+3. Framework preset: **Next.js**.
+4. Build command: `npm run build` (default).
+5. Output: default.
+6. Add environment variable (optional, but recommended for editing):
+   - `ADMIN_EDIT_KEY` = a strong secret value
+7. Deploy.
 
-To learn more about Next.js, take a look at the following resources:
+If `ADMIN_EDIT_KEY` is not set, score editing endpoints are disabled and the app is read-only.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes for Feedback Phase
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- This version is ideal for quick UX feedback.
+- For persistent shared scoring, add a real DB later and replace `leagueRepo` internals.

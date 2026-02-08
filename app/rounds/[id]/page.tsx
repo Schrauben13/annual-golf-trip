@@ -347,7 +347,7 @@ export default function RoundDetailPage() {
           </button>
         </div>
         <div className="mt-2 text-xs text-zinc-600">
-          Default key is <span className="font-semibold">kiawah2026</span> unless `ADMIN_EDIT_KEY` is set.
+          Set `ADMIN_EDIT_KEY` in your deploy environment to enable score edits.
         </div>
         {saveMessage ? <div className="mt-2 text-sm text-zinc-700">{saveMessage}</div> : null}
       </div>

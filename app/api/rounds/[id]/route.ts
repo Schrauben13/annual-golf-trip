@@ -1,16 +1,21 @@
-import { getRoundById, getScoresForRound } from "@/app/lib/leagueRepo";
-import { prisma } from "@/app/lib/prisma";
+import {
+  getPlayersForSeason,
+  getRoundById,
+  getScoresForRound,
+  upsertScoresForRound,
+} from "@/app/lib/leagueRepo";
 
-const ADMIN_EDIT_KEY = process.env.ADMIN_EDIT_KEY ?? "kiawah2026";
+const ADMIN_EDIT_KEY = process.env.ADMIN_EDIT_KEY;
 
 type RouteParams = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function GET(_: Request, { params }: RouteParams) {
-  const round = await getRoundById(params.id);
+  const { id } = await params;
+  const round = await getRoundById(id);
 
   if (!round) {
     return Response.json({ error: "Round not found" }, { status: 404 });
@@ -46,16 +51,25 @@ type PatchPayload = {
 };
 
 function isValidStrokeCount(value: unknown): value is number {
-  return Number.isInteger(value) && value >= 40 && value <= 200;
+  return typeof value === "number" && Number.isInteger(value) && value >= 40 && value <= 200;
 }
 
 export async function PATCH(request: Request, { params }: RouteParams) {
+  const { id } = await params;
+
+  if (!ADMIN_EDIT_KEY) {
+    return Response.json(
+      { error: "Admin editing is disabled. Configure ADMIN_EDIT_KEY to enable it." },
+      { status: 503 }
+    );
+  }
+
   const providedKey = request.headers.get("x-admin-key");
   if (!providedKey || providedKey !== ADMIN_EDIT_KEY) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const round = await getRoundById(params.id);
+  const round = await getRoundById(id);
   if (!round) {
     return Response.json({ error: "Round not found" }, { status: 404 });
   }
@@ -65,19 +79,8 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     return Response.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  let validPlayerIds: Set<string>;
-  try {
-    const seasonPlayers = await prisma.seasonPlayer.findMany({
-      where: { seasonId: round.seasonId },
-      select: { playerId: true },
-    });
-    validPlayerIds = new Set(seasonPlayers.map((entry) => entry.playerId));
-  } catch {
-    return Response.json(
-      { error: "Score updates require a live database connection." },
-      { status: 503 }
-    );
-  }
+  const seasonPlayers = await getPlayersForSeason(round.seasonId);
+  const validPlayerIds = new Set(seasonPlayers.map((entry) => entry.id));
 
   for (const score of payload.scores) {
     if (!validPlayerIds.has(score.playerId)) {
@@ -100,35 +103,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     }
   }
 
-  try {
-    await prisma.$transaction(
-      payload.scores.map((score) =>
-        prisma.score.upsert({
-          where: {
-            roundId_playerId: {
-              roundId: round.id,
-              playerId: score.playerId,
-            },
-          },
-          update: {
-            gross: score.gross,
-            net: score.net,
-          },
-          create: {
-            roundId: round.id,
-            playerId: score.playerId,
-            gross: score.gross,
-            net: score.net,
-          },
-        })
-      )
-    );
-  } catch {
-    return Response.json(
-      { error: "Unable to save scores right now. Database unavailable." },
-      { status: 503 }
-    );
-  }
+  await upsertScoresForRound(round.id, payload.scores);
 
   const updatedScores = await getScoresForRound(round.id);
   return Response.json({
