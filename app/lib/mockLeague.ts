@@ -2,8 +2,8 @@ export const seasons = [
   {
     id: "season-kiawah-2026",
     name: "Kiawah Island Golf Trip 2026",
-    startDate: "2026-05-14",
-    endDate: "2026-05-17",
+    startDate: "2026-05-11",
+    endDate: "2026-05-13",
   },
 ];
 
@@ -39,25 +39,31 @@ export const rounds = [
     id: "round-01",
     seasonId: "season-kiawah-2026",
     week: 1,
-    date: "2026-05-14",
+    date: "2026-05-11",
+    course: "Turtle Point",
+    teeTime: "3:00 PM",
+    players: 4,
+    confirmationNumber: "CN853709J5T8ZW",
   },
   {
     id: "round-02",
     seasonId: "season-kiawah-2026",
     week: 2,
-    date: "2026-05-15",
+    date: "2026-05-12",
+    course: "The Ocean Course",
+    teeTime: "2:10 PM",
+    players: 4,
+    confirmationNumber: "CN47TYW37D1YQK",
   },
   {
     id: "round-03",
     seasonId: "season-kiawah-2026",
     week: 3,
-    date: "2026-05-16",
-  },
-  {
-    id: "round-04",
-    seasonId: "season-kiawah-2026",
-    week: 4,
-    date: "2026-05-17",
+    date: "2026-05-13",
+    course: "Cougar Point",
+    teeTime: "12:20 PM",
+    players: 4,
+    confirmationNumber: "CN2B0G2FTX95Q7",
   },
 ];
 
@@ -74,8 +80,4 @@ export const scores = [
   { id: "score-10", roundId: "round-03", playerId: "player-02", gross: 90, net: 76 },
   { id: "score-11", roundId: "round-03", playerId: "player-03", gross: 81, net: 72 },
   { id: "score-12", roundId: "round-03", playerId: "player-04", gross: 99, net: 83 },
-  { id: "score-13", roundId: "round-04", playerId: "player-01", gross: 84, net: 73 },
-  { id: "score-14", roundId: "round-04", playerId: "player-02", gross: 88, net: 74 },
-  { id: "score-15", roundId: "round-04", playerId: "player-03", gross: 79, net: 70 },
-  { id: "score-16", roundId: "round-04", playerId: "player-04", gross: 94, net: 78 },
 ];

@@ -29,6 +29,10 @@ export async function GET(_: Request, { params }: RouteParams) {
       week: round.week,
       date: round.date.toISOString(),
       seasonId: round.seasonId,
+      course: round.course,
+      teeTime: round.teeTime,
+      players: round.players,
+      confirmationNumber: round.confirmationNumber,
     },
     scores: scores.map((score) => ({
       id: score.id,

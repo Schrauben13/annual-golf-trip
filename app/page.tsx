@@ -65,13 +65,28 @@ export default async function Home() {
         <div className="text-base font-semibold text-zinc-900">
           {season?.name ?? "Trip Season"}
         </div>
-        <div>Dates: May 14, 2026 to May 17, 2026</div>
+        <div>Dates: May 11, 2026 to May 13, 2026</div>
         <div className="mt-2">
           Players: {players.map((player) => player.name).join(", ")}
         </div>
         <div>Rounds Scheduled: {rounds.length}</div>
         <div>
           Current Leader: {leader ? leader.playerName : "No scores entered yet"}
+        </div>
+
+        <div className="mt-4 space-y-2">
+          <div className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+            Tee Times
+          </div>
+          {rounds.map((round) => (
+            <div key={round.id} className="rounded-md border border-zinc-200 bg-white p-3">
+              <div className="font-semibold text-zinc-900">{round.course ?? `Round ${round.week}`}</div>
+              <div>Date: {round.date.toISOString().slice(0, 10)}</div>
+              <div>Time: {round.teeTime ?? "TBD"}</div>
+              <div>Players: {round.players ?? players.length}</div>
+              <div>Confirmation: {round.confirmationNumber ?? "N/A"}</div>
+            </div>
+          ))}
         </div>
       </div>
 

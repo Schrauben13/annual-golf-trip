@@ -9,6 +9,10 @@ type Round = {
   week: number;
   date: string;
   seasonId: string;
+  course: string | null;
+  teeTime: string | null;
+  players: number | null;
+  confirmationNumber: string | null;
 };
 
 type RoundScore = {
@@ -321,6 +325,11 @@ export default function RoundDetailPage() {
         </h1>
         <div className="text-sm text-zinc-700">
           {new Date(round.date).toISOString().slice(0, 10)} • {leaderboard.length} Players Scored
+        </div>
+        <div className="text-sm text-zinc-700">Course: {round.course ?? "TBD"}</div>
+        <div className="text-sm text-zinc-700">Tee Time: {round.teeTime ?? "TBD"}</div>
+        <div className="text-xs text-zinc-600">
+          Confirmation: {round.confirmationNumber ?? "N/A"}
         </div>
       </div>
 

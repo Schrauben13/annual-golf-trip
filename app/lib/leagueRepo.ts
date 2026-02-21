@@ -42,6 +42,10 @@ type Round = {
   seasonId: string;
   week: number;
   date: Date;
+  course: string | null;
+  teeTime: string | null;
+  players: number | null;
+  confirmationNumber: string | null;
 };
 
 type Score = {
@@ -71,6 +75,10 @@ const rounds: Round[] = mockRounds.map((round) => ({
   seasonId: round.seasonId,
   week: round.week,
   date: new Date(round.date),
+  course: round.course ?? null,
+  teeTime: round.teeTime ?? null,
+  players: round.players ?? null,
+  confirmationNumber: round.confirmationNumber ?? null,
 }));
 
 const scoreStore: Score[] = mockScores.map((score) => ({

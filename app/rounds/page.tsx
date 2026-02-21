@@ -61,6 +61,11 @@ export default async function RoundsPage() {
               <div className="text-sm text-zinc-700">
                 Date: {round.date.toISOString().slice(0, 10)}
               </div>
+              <div className="text-sm text-zinc-700">Course: {round.course ?? "TBD"}</div>
+              <div className="text-sm text-zinc-700">Tee Time: {round.teeTime ?? "TBD"}</div>
+              <div className="text-xs text-zinc-600">
+                Confirmation: {round.confirmationNumber ?? "N/A"}
+              </div>
               <div className="mt-2 text-xs text-zinc-600">
                 {entered}/{total} scores entered
               </div>
