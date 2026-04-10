@@ -5,8 +5,6 @@ import {
   upsertScoresForRound,
 } from "@/app/lib/leagueRepo";
 
-const ADMIN_EDIT_KEY = process.env.ADMIN_EDIT_KEY;
-
 type RouteParams = {
   params: Promise<{
     id: string;
@@ -60,16 +58,17 @@ function isValidStrokeCount(value: unknown): value is number {
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   const { id } = await params;
+  const adminEditKey = process.env.ADMIN_EDIT_KEY?.trim();
 
-  if (!ADMIN_EDIT_KEY) {
+  if (!adminEditKey) {
     return Response.json(
       { error: "Admin editing is disabled. Configure ADMIN_EDIT_KEY to enable it." },
       { status: 503 }
     );
   }
 
-  const providedKey = request.headers.get("x-admin-key");
-  if (!providedKey || providedKey !== ADMIN_EDIT_KEY) {
+  const providedKey = request.headers.get("x-admin-key")?.trim();
+  if (!providedKey || providedKey !== adminEditKey) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 

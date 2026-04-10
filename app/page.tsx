@@ -8,6 +8,9 @@ import {
   getStandingsForSeason,
 } from "./lib/leagueRepo";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Home() {
   const season = await getLatestSeason();
   const players = season ? await getPlayersForSeason(season.id) : [];

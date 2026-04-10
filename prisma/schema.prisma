@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Season {
+  id        String   @id
+  name      String
+  startDate DateTime?
+  endDate   DateTime?
+  rounds    Round[]
+}
+
+model Player {
+  id            String  @id
+  name          String
+  email         String? @unique
+  handicapIndex Float?
+  scores        Score[]
+}
+
+model Round {
+  id                 String   @id
+  seasonId           String
+  week               Int
+  date               DateTime
+  course             String?
+  teeTime            String?
+  playerCount        Int?
+  confirmationNumber String?
+  season             Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  scores             Score[]
+
+  @@index([seasonId, date])
+}
+
+model Score {
+  id       String @id
+  roundId  String
+  playerId String
+  gross    Int
+  net      Int?
+  round    Round  @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([roundId, playerId])
+  @@index([playerId])
+}

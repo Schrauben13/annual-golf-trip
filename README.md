@@ -2,15 +2,16 @@
 
 A Next.js app for sharing Kiawah Island golf trip info with your group.
 
-Current mode is **no database**:
-- Trip data is hardcoded in `app/lib/mockLeague.ts`
-- Runtime data access is in-memory via `app/lib/leagueRepo.ts`
-- Score edits (if enabled) are process-memory only and reset on deploy/restart
+Current mode uses **Postgres + Prisma**:
+- Prisma schema: `prisma/schema.prisma`
+- Data access layer: `app/lib/leagueRepo.ts`
+- Prisma client singleton: `app/lib/prisma.ts`
 
 ## Local Run
 
 ```bash
 npm install
+npm run prisma:push
 npm run dev
 ```
 
@@ -29,7 +30,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 If `ADMIN_EDIT_KEY` is not set, score editing endpoints are disabled and the app is read-only.
 
-## Notes for Feedback Phase
+## Database Commands
 
-- This version is ideal for quick UX feedback.
-- For persistent shared scoring, add a real DB later and replace `leagueRepo` internals.
+```bash
+npm run prisma:generate
+npm run prisma:push
+```

@@ -6,6 +6,9 @@ import {
   getSeasonScoreRows,
 } from "../lib/leagueRepo";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function RoundsPage() {
   const season = await getLatestSeason();
   const rounds = season ? await getRoundsForSeason(season.id) : [];

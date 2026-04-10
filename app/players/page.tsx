@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { getLatestSeason, getPlayersForSeason } from "../lib/leagueRepo";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function getInitials(name: string) {
   return name
     .split(" ")
