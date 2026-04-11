@@ -68,6 +68,13 @@ export default function RootLayout({
               >
                 Standings
               </Link>
+              <Link
+                className="hidden hover:opacity-90 sm:inline"
+                href="/admin"
+                style={{ color: "var(--augusta-cream)" }}
+              >
+                Admin
+              </Link>
             </nav>
           </header>
           <main className="mx-auto w-full max-w-5xl px-5 py-10 pb-24 sm:pb-10">

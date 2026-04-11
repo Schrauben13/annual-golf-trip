@@ -8,6 +8,7 @@ const items = [
   { href: "/rounds", label: "Rounds" },
   { href: "/standings", label: "Standings" },
   { href: "/players", label: "Players" },
+  { href: "/admin", label: "Admin" },
 ];
 
 export default function MobileNav() {
@@ -15,7 +16,7 @@ export default function MobileNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200/70 bg-white/95 backdrop-blur sm:hidden">
-      <ul className="mx-auto grid max-w-5xl grid-cols-4">
+      <ul className="mx-auto grid max-w-5xl grid-cols-5">
         {items.map((item) => {
           const active =
             item.href === "/"

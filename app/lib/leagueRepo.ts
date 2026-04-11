@@ -292,6 +292,63 @@ export async function getSeasonScoreRows(
     .sort((a, b) => byDateAsc({ date: a.roundDate }, { date: b.roundDate }));
 }
 
+export async function getAllSeasons() {
+  return prisma.season.findMany({ orderBy: { startDate: "desc" } });
+}
+
+export async function createSeason(data: {
+  name: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
+}) {
+  return prisma.season.create({
+    data: {
+      id: crypto.randomUUID(),
+      name: data.name,
+      startDate: data.startDate ?? null,
+      endDate: data.endDate ?? null,
+    },
+  });
+}
+
+export async function createPlayer(data: {
+  name: string;
+  email?: string | null;
+  handicapIndex?: number | null;
+}) {
+  return prisma.player.create({
+    data: {
+      id: crypto.randomUUID(),
+      name: data.name,
+      email: data.email ?? null,
+      handicapIndex: data.handicapIndex ?? null,
+    },
+  });
+}
+
+export async function createRound(data: {
+  seasonId: string;
+  week: number;
+  date: Date;
+  course?: string | null;
+  teeTime?: string | null;
+  playerCount?: number | null;
+  confirmationNumber?: string | null;
+}) {
+  return prisma.round.create({
+    data: {
+      id: crypto.randomUUID(),
+      seasonId: data.seasonId,
+      week: data.week,
+      date: data.date,
+      course: data.course ?? null,
+      teeTime: data.teeTime ?? null,
+      playerCount: data.playerCount ?? null,
+      confirmationNumber: data.confirmationNumber ?? null,
+    },
+  });
+}
+
 export async function upsertScoresForRound(
   roundId: string,
   updates: Array<{ playerId: string; gross: number; net: number | null }>
