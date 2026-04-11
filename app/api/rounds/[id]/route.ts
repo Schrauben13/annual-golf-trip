@@ -19,7 +19,10 @@ export async function GET(_: Request, { params }: RouteParams) {
     return Response.json({ error: "Round not found" }, { status: 404 });
   }
 
-  const scores = await getScoresForRound(round.id);
+  const [scores, seasonPlayers] = await Promise.all([
+    getScoresForRound(round.id),
+    getPlayersForSeason(round.seasonId),
+  ]);
 
   return Response.json({
     round: {
@@ -32,6 +35,7 @@ export async function GET(_: Request, { params }: RouteParams) {
       players: round.players,
       confirmationNumber: round.confirmationNumber,
     },
+    players: seasonPlayers.map((p) => ({ id: p.id, name: p.name })),
     scores: scores.map((score) => ({
       id: score.id,
       gross: score.gross,

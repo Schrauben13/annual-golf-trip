@@ -25,8 +25,14 @@ type RoundScore = {
   };
 };
 
+type RoundPlayer = {
+  id: string;
+  name: string;
+};
+
 type RoundResponse = {
   round: Round;
+  players: RoundPlayer[];
   scores: RoundScore[];
 };
 
@@ -78,6 +84,15 @@ export default function RoundDetailPage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [editableScores, setEditableScores] = useState<EditableScoresMap>({});
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("adminKey");
+    if (stored) setAdminKey(stored);
+  }, []);
+
+  useEffect(() => {
+    if (adminKey) localStorage.setItem("adminKey", adminKey);
+  }, [adminKey]);
 
   useEffect(() => {
     if (!id) {
@@ -137,27 +152,42 @@ export default function RoundDetailPage() {
     result?.id === id && result.status === "success" ? result.data : null;
 
   const round = data?.round;
+  const roundPlayers = useMemo(() => data?.players ?? [], [data]);
   const roundScores = useMemo(() => data?.scores ?? [], [data]);
+
+  const scoreByPlayerId = useMemo(() => {
+    const map = new Map<string, RoundScore>();
+    for (const score of roundScores) map.set(score.player.id, score);
+    return map;
+  }, [roundScores]);
 
   useEffect(() => {
     const next: EditableScoresMap = {};
-    for (const score of roundScores) {
-      next[score.player.id] = {
-        playerId: score.player.id,
-        gross: String(score.gross),
-        net: score.net !== null ? String(score.net) : "",
+    for (const player of roundPlayers) {
+      const score = scoreByPlayerId.get(player.id);
+      next[player.id] = {
+        playerId: player.id,
+        gross: score ? String(score.gross) : "",
+        net: score?.net != null ? String(score.net) : "",
       };
     }
     setEditableScores(next);
-  }, [roundScores]);
+  }, [roundPlayers, scoreByPlayerId]);
 
-  const allNetPresent = roundScores.every(
-    (score) => score.net !== null && score.net !== undefined
-  );
+  const allNetPresent =
+    roundScores.length > 0 &&
+    roundScores.every((score) => score.net !== null && score.net !== undefined);
 
   const leaderboard = useMemo(() => {
-    return roundScores.slice().sort((a, b) => scoreSort(a, b, allNetPresent));
-  }, [roundScores, allNetPresent]);
+    return roundPlayers.slice().sort((a, b) => {
+      const scoreA = scoreByPlayerId.get(a.id);
+      const scoreB = scoreByPlayerId.get(b.id);
+      if (!scoreA && !scoreB) return a.name.localeCompare(b.name);
+      if (!scoreA) return 1;
+      if (!scoreB) return -1;
+      return scoreSort(scoreA, scoreB, allNetPresent);
+    });
+  }, [roundPlayers, scoreByPlayerId, allNetPresent]);
 
   function updateScoreField(
     playerId: string,
@@ -186,26 +216,30 @@ export default function RoundDetailPage() {
     setSaveMessage(null);
 
     try {
-      const payloadScores = leaderboard.map((score) => {
-        const form = editableScores[score.player.id];
-        const gross = Number.parseInt(form?.gross ?? "", 10);
+      const payloadScores: Array<{ playerId: string; gross: number; net: number | null }> = [];
+
+      for (const player of roundPlayers) {
+        const form = editableScores[player.id];
+        const grossText = (form?.gross ?? "").trim();
+        if (!grossText) continue; // skip players with no score entered
+
+        const gross = Number.parseInt(grossText, 10);
         const netText = (form?.net ?? "").trim();
         const net = netText.length ? Number.parseInt(netText, 10) : null;
 
         if (!Number.isInteger(gross)) {
-          throw new Error(`Gross score missing/invalid for ${score.player.name}`);
+          throw new Error(`Invalid gross score for ${player.name}`);
         }
-
         if (netText.length && !Number.isInteger(net)) {
-          throw new Error(`Net score invalid for ${score.player.name}`);
+          throw new Error(`Invalid net score for ${player.name}`);
         }
 
-        return {
-          playerId: score.player.id,
-          gross,
-          net,
-        };
-      });
+        payloadScores.push({ playerId: player.id, gross, net });
+      }
+
+      if (payloadScores.length === 0) {
+        throw new Error("Enter at least one gross score before saving.");
+      }
 
       const response = await fetch(`/api/rounds/${round.id}`, {
         method: "PATCH",
@@ -364,21 +398,21 @@ export default function RoundDetailPage() {
       <div className="trip-card rounded-lg p-4">
         <div className="mb-3 text-base font-semibold text-zinc-900">Leaderboard + Entry</div>
 
+        {leaderboard.length === 0 && (
+          <p className="text-sm text-zinc-500">No players in this season yet. Add players from the Admin page.</p>
+        )}
+
         <div className="space-y-3 sm:hidden">
-          {leaderboard.map((entry) => {
-            const editable = editableScores[entry.player.id] ?? {
-              playerId: entry.player.id,
-              gross: String(entry.gross),
-              net: entry.net !== null ? String(entry.net) : "",
-            };
+          {leaderboard.map((player) => {
+            const editable = editableScores[player.id] ?? { playerId: player.id, gross: "", net: "" };
 
             return (
-              <div key={entry.id} className="rounded-lg border border-zinc-200 bg-white p-3">
+              <div key={player.id} className="rounded-lg border border-zinc-200 bg-white p-3">
                 <div className="mb-2 flex items-center gap-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-[11px] font-bold text-white">
-                    {getInitials(entry.player.name)}
+                    {getInitials(player.name)}
                   </div>
-                  <div className="font-semibold text-zinc-900">{entry.player.name}</div>
+                  <div className="font-semibold text-zinc-900">{player.name}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
@@ -386,7 +420,7 @@ export default function RoundDetailPage() {
                     <input
                       value={editable.gross}
                       onChange={(event) =>
-                        updateScoreField(entry.player.id, "gross", event.target.value)
+                        updateScoreField(player.id, "gross", event.target.value)
                       }
                       inputMode="numeric"
                       className="mt-1 w-full rounded border px-2 py-2 text-sm"
@@ -397,7 +431,7 @@ export default function RoundDetailPage() {
                     <input
                       value={editable.net}
                       onChange={(event) =>
-                        updateScoreField(entry.player.id, "net", event.target.value)
+                        updateScoreField(player.id, "net", event.target.value)
                       }
                       inputMode="numeric"
                       placeholder="optional"
@@ -420,28 +454,24 @@ export default function RoundDetailPage() {
               </tr>
             </thead>
             <tbody>
-              {leaderboard.map((entry) => {
-                const editable = editableScores[entry.player.id] ?? {
-                  playerId: entry.player.id,
-                  gross: String(entry.gross),
-                  net: entry.net !== null ? String(entry.net) : "",
-                };
+              {leaderboard.map((player) => {
+                const editable = editableScores[player.id] ?? { playerId: player.id, gross: "", net: "" };
 
                 return (
-                  <tr key={entry.id} className="border-b last:border-0">
+                  <tr key={player.id} className="border-b last:border-0">
                     <td className="px-2 py-2 font-medium text-zinc-900">
                       <div className="flex items-center gap-2">
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-700 text-[11px] font-bold text-white">
-                          {getInitials(entry.player.name)}
+                          {getInitials(player.name)}
                         </div>
-                        <span>{entry.player.name}</span>
+                        <span>{player.name}</span>
                       </div>
                     </td>
                     <td className="px-2 py-2">
                       <input
                         value={editable.gross}
                         onChange={(event) =>
-                          updateScoreField(entry.player.id, "gross", event.target.value)
+                          updateScoreField(player.id, "gross", event.target.value)
                         }
                         inputMode="numeric"
                         className="w-24 rounded border px-2 py-2"
@@ -451,7 +481,7 @@ export default function RoundDetailPage() {
                       <input
                         value={editable.net}
                         onChange={(event) =>
-                          updateScoreField(entry.player.id, "net", event.target.value)
+                          updateScoreField(player.id, "net", event.target.value)
                         }
                         inputMode="numeric"
                         placeholder="optional"
