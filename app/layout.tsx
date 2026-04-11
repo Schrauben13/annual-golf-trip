@@ -22,13 +22,15 @@ export default function RootLayout({
       >
         <div className="min-h-screen">
           <header
-            className="border-b"
+            className="border-b sticky top-0 z-40"
             style={{
-              background: "var(--augusta-green)",
-              borderColor: "rgba(0,0,0,0.08)",
+              background: "rgba(18, 58, 20, 0.82)",
+              borderColor: "rgba(255,255,255,0.10)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
             }}
           >
-            <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-3 px-5 py-4 text-sm font-medium text-white">
+            <nav className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-3 px-5 py-3 text-sm font-medium text-white">
               <Image
                 src="/kiawah-logo.png"
                 alt="Kiawah Island 2026 logo"
@@ -41,35 +43,35 @@ export default function RootLayout({
                 Kiawah Island Trip
               </span>
               <Link
-                className="hidden hover:opacity-90 sm:inline"
+                className="hidden rounded px-3 py-1.5 transition hover:bg-white/10 sm:inline"
                 href="/"
                 style={{ color: "var(--augusta-cream)" }}
               >
                 Trip Home
               </Link>
               <Link
-                className="hidden hover:opacity-90 sm:inline"
+                className="hidden rounded px-3 py-1.5 transition hover:bg-white/10 sm:inline"
                 href="/players"
                 style={{ color: "var(--augusta-cream)" }}
               >
                 Players
               </Link>
               <Link
-                className="hidden hover:opacity-90 sm:inline"
+                className="hidden rounded px-3 py-1.5 transition hover:bg-white/10 sm:inline"
                 href="/rounds"
                 style={{ color: "var(--augusta-cream)" }}
               >
                 Rounds
               </Link>
               <Link
-                className="hidden hover:opacity-90 sm:inline"
+                className="hidden rounded px-3 py-1.5 transition hover:bg-white/10 sm:inline"
                 href="/standings"
                 style={{ color: "var(--augusta-cream)" }}
               >
                 Standings
               </Link>
               <Link
-                className="hidden hover:opacity-90 sm:inline"
+                className="hidden rounded px-3 py-1.5 transition hover:bg-white/10 sm:inline"
                 href="/admin"
                 style={{ color: "var(--augusta-cream)" }}
               >

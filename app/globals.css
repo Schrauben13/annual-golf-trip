@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f3ea;
-  --foreground: #1e1f1c;
+  --background: #eef2ee;
+  --foreground: #1a2e1a;
   --augusta-green: #1b5e20;
-  --augusta-gold: #d4af37;
-  --augusta-cream: #f7f3ea;
-  --background-image: url("/novi-golf.jpg");
+  --augusta-gold: #c9a227;
+  --augusta-cream: #f5f0e8;
+  --background-image: url("/ocean-course.jpg");
 }
 
 @theme inline {
@@ -16,34 +16,42 @@
   --font-mono: "SFMono-Regular", Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   background-image:
     linear-gradient(
-      to bottom,
-      rgba(6, 16, 42, 0.62),
-      rgba(9, 24, 54, 0.52),
-      rgba(10, 22, 45, 0.62)
+      160deg,
+      rgba(10, 30, 12, 0.52) 0%,
+      rgba(8, 24, 10, 0.38) 50%,
+      rgba(10, 30, 12, 0.52) 100%
     ),
     var(--background-image);
   background-size: cover;
-  background-position: center;
+  background-position: center 30%;
   background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
 }
 
 .trip-card {
-  border: 1px solid rgba(255, 255, 255, 0.58);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 8px 24px rgba(7, 20, 45, 0.15);
-  backdrop-filter: blur(2px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 2px 8px rgba(15, 40, 18, 0.08),
+    0 8px 32px rgba(15, 40, 18, 0.10);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: box-shadow 0.2s ease;
+}
+
+.trip-card:hover {
+  box-shadow:
+    0 4px 12px rgba(15, 40, 18, 0.10),
+    0 12px 40px rgba(15, 40, 18, 0.14);
 }
