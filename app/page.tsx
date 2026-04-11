@@ -139,6 +139,14 @@ export default async function Home() {
         >
           Trip Standings
         </Link>
+        <a
+          href="https://www.vrbo.com/842556?dateless=true"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="trip-card rounded-lg p-4 font-semibold text-zinc-900"
+        >
+          Rental House Info
+        </a>
       </div>
     </section>
   );
