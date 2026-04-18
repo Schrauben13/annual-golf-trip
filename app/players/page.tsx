@@ -1,17 +1,9 @@
 import Link from "next/link";
 import { getLatestSeason, getPlayersForSeason } from "../lib/leagueRepo";
+import { PlayerAvatar } from "../components/PlayerAvatar";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 export default async function PlayersPage() {
   const season = await getLatestSeason();
@@ -40,9 +32,7 @@ export default async function PlayersPage() {
             style={{ borderColor: "var(--augusta-gold)" }}
           >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-700 text-sm font-bold text-white">
-                {getInitials(player.name)}
-              </div>
+              <PlayerAvatar name={player.name} size={40} />
               <div className="text-base font-semibold text-zinc-900">
                 {player.name}
               </div>

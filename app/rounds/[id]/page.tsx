@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { PlayerAvatar } from "@/app/components/PlayerAvatar";
 
 type Round = {
   id: string;
@@ -409,9 +410,7 @@ export default function RoundDetailPage() {
             return (
               <div key={player.id} className="rounded-lg border border-zinc-200 bg-white p-3">
                 <div className="mb-2 flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-[11px] font-bold text-white">
-                    {getInitials(player.name)}
-                  </div>
+                  <PlayerAvatar name={player.name} size={32} />
                   <div className="font-semibold text-zinc-900">{player.name}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -461,9 +460,7 @@ export default function RoundDetailPage() {
                   <tr key={player.id} className="border-b last:border-0">
                     <td className="px-2 py-2 font-medium text-zinc-900">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-700 text-[11px] font-bold text-white">
-                          {getInitials(player.name)}
-                        </div>
+                        <PlayerAvatar name={player.name} size={28} />
                         <span>{player.name}</span>
                       </div>
                     </td>
