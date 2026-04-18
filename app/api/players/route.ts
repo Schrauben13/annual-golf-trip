@@ -1,4 +1,9 @@
-import { createPlayer } from "@/app/lib/leagueRepo";
+import { createPlayer, getPlayers } from "@/app/lib/leagueRepo";
+
+export async function GET() {
+  const players = await getPlayers();
+  return Response.json({ players });
+}
 
 export async function POST(request: Request) {
   const adminEditKey = process.env.ADMIN_EDIT_KEY?.trim();
