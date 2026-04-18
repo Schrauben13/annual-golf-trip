@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {
-  getLatestSeason,
-  getPlayersForSeason,
+  getAllSeasons,
+  getPlayers,
   getRoundsForSeason,
   getSeasonScoreRows,
 } from "../lib/leagueRepo";
@@ -10,18 +10,24 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function RoundsPage() {
-  const season = await getLatestSeason();
-  const rounds = season ? await getRoundsForSeason(season.id) : [];
-  const players = season ? await getPlayersForSeason(season.id) : [];
-  const seasonScores = season ? await getSeasonScoreRows(season.id) : [];
+  const [seasons, players] = await Promise.all([getAllSeasons(), getPlayers()]);
 
-  const entriesByRound = new Map<string, number>();
-  for (const score of seasonScores) {
-    entriesByRound.set(score.roundId, (entriesByRound.get(score.roundId) ?? 0) + 1);
-  }
+  const tripData = await Promise.all(
+    seasons.map(async (season) => {
+      const rounds = await getRoundsForSeason(season.id);
+      const scores = await getSeasonScoreRows(season.id);
+      const entriesByRound = new Map<string, number>();
+      for (const score of scores) {
+        entriesByRound.set(score.roundId, (entriesByRound.get(score.roundId) ?? 0) + 1);
+      }
+      return { season, rounds, entriesByRound };
+    })
+  );
+
+  const tripsWithRounds = tripData.filter((t) => t.rounds.length > 0);
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-6">
       <div className="space-y-2">
         <h1
           className="text-3xl font-semibold"
@@ -34,56 +40,73 @@ export default async function RoundsPage() {
         </p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {rounds.map((round) => {
-          const entered = entriesByRound.get(round.id) ?? 0;
-          const total = players.length || 0;
-          const isComplete = total > 0 && entered >= total;
+      {tripsWithRounds.length === 0 && (
+        <p className="text-sm text-zinc-500">No rounds yet. Add rounds from the Admin page.</p>
+      )}
 
-          return (
-            <Link
-              key={round.id}
-              href={`/rounds/${round.id}`}
-              className="trip-card rounded-lg p-4 transition hover:shadow-sm"
-              style={{ borderColor: "var(--augusta-gold)" }}
-            >
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <div className="text-base font-semibold text-zinc-900">
-                  Round {round.week}
-                </div>
-                <span
-                  className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                    isComplete
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-amber-100 text-amber-700"
-                  }`}
+      {tripsWithRounds.map(({ season, rounds, entriesByRound }, tripIndex) => (
+        <div key={season.id} className="space-y-3">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-zinc-800">{season.name}</h2>
+            {tripIndex === 0 && (
+              <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+                Current
+              </span>
+            )}
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {rounds.map((round) => {
+              const entered = entriesByRound.get(round.id) ?? 0;
+              const total = players.length || 0;
+              const isComplete = total > 0 && entered >= total;
+
+              return (
+                <Link
+                  key={round.id}
+                  href={`/rounds/${round.id}`}
+                  className="trip-card rounded-lg p-4 transition hover:shadow-sm"
+                  style={{ borderColor: "var(--augusta-gold)" }}
                 >
-                  {isComplete ? "Complete" : "In Progress"}
-                </span>
-              </div>
-              <div className="text-sm text-zinc-700">
-                Date: {round.date.toISOString().slice(0, 10)}
-              </div>
-              <div className="text-sm text-zinc-700">Course: {round.course ?? "TBD"}</div>
-              <div className="text-sm text-zinc-700">Tee Time: {round.teeTime ?? "TBD"}</div>
-              <div className="text-xs text-zinc-600">
-                Confirmation: {round.confirmationNumber ?? "N/A"}
-              </div>
-              <div className="mt-2 text-xs text-zinc-600">
-                {entered}/{total} scores entered
-              </div>
-              <div className="mt-1 h-2 rounded-full bg-zinc-200">
-                <div
-                  className="h-2 rounded-full bg-emerald-600"
-                  style={{
-                    width: `${total > 0 ? Math.min((entered / total) * 100, 100) : 0}%`,
-                  }}
-                />
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <div className="text-base font-semibold text-zinc-900">
+                      Round {round.week}
+                    </div>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                        isComplete
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}
+                    >
+                      {isComplete ? "Complete" : "In Progress"}
+                    </span>
+                  </div>
+                  <div className="text-sm text-zinc-700">
+                    Date: {round.date.toISOString().slice(0, 10)}
+                  </div>
+                  <div className="text-sm text-zinc-700">Course: {round.course ?? "TBD"}</div>
+                  <div className="text-sm text-zinc-700">Tee Time: {round.teeTime ?? "TBD"}</div>
+                  <div className="text-xs text-zinc-600">
+                    Confirmation: {round.confirmationNumber ?? "N/A"}
+                  </div>
+                  <div className="mt-2 text-xs text-zinc-600">
+                    {entered}/{total} scores entered
+                  </div>
+                  <div className="mt-1 h-2 rounded-full bg-zinc-200">
+                    <div
+                      className="h-2 rounded-full bg-emerald-600"
+                      style={{
+                        width: `${total > 0 ? Math.min((entered / total) * 100, 100) : 0}%`,
+                      }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
     </section>
   );
 }

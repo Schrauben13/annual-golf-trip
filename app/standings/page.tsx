@@ -127,7 +127,7 @@ export default async function StandingsPage() {
           Trip Standings
         </h1>
         <div className="text-sm text-zinc-700">
-          {season?.name ?? "Season"} • Last updated:{" "}
+          {season?.name ?? "Trip"} • Last updated:{" "}
           {new Date().toLocaleDateString("en-US", {
             year: "numeric",
             month: "long",
@@ -138,7 +138,7 @@ export default async function StandingsPage() {
 
       <div className="trip-card rounded-lg p-4">
         <div className="mb-3 text-base font-semibold text-zinc-900">
-          Season Totals
+          Trip Totals
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-zinc-700">

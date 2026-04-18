@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 
-type Season = { id: string; name: string };
+type Trip = { id: string; name: string };
 type ToastState = { message: string; tone: "success" | "error" };
-type Tab = "season" | "player" | "round" | "historical";
+type Tab = "trip" | "player" | "round" | "historical";
 type Player = { id: string; name: string };
 
 type HistoricalScore = { gross: string; net: string };
 
 export default function AdminPage() {
   const [adminKey, setAdminKey] = useState("");
-  const [tab, setTab] = useState<Tab>("season");
-  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [tab, setTab] = useState<Tab>("trip");
+  const [seasons, setSeasons] = useState<Trip[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -55,7 +55,7 @@ export default function AdminPage() {
   function loadSeasons() {
     fetch("/api/seasons")
       .then((r) => r.json())
-      .then((data: { seasons?: Season[] }) => {
+      .then((data: { seasons?: Trip[] }) => {
         const list = data.seasons ?? [];
         setSeasons(list);
         if (list.length > 0 && !roundSeasonId) setRoundSeasonId(list[0].id);
@@ -111,7 +111,7 @@ export default function AdminPage() {
         startDate: seasonStart || null,
         endDate: seasonEnd || null,
       });
-      showToast("Season created!", "success");
+      showToast("Trip created!", "success");
       setSeasonName("");
       setSeasonStart("");
       setSeasonEnd("");
@@ -261,7 +261,7 @@ export default function AdminPage() {
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {(["season", "player", "round", "historical"] as Tab[]).map((t) => (
+        {(["trip", "player", "round", "historical"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -269,16 +269,16 @@ export default function AdminPage() {
               tab === t ? "bg-emerald-700 text-white" : "bg-zinc-100 text-zinc-700"
             }`}
           >
-            {t === "season" ? "Create Season" : t === "player" ? "Add Player" : t === "round" ? "Add Round" : "Historical Round"}
+            {t === "trip" ? "Create Trip" : t === "player" ? "Add Player" : t === "round" ? "Add Round" : "Historical Round"}
           </button>
         ))}
       </div>
 
-      {tab === "season" && (
+      {tab === "trip" && (
         <form onSubmit={handleCreateSeason} className="trip-card space-y-4 rounded-lg p-5">
-          <div className="text-base font-semibold text-zinc-900">Create Season</div>
+          <div className="text-base font-semibold text-zinc-900">Create Trip</div>
           <label className="flex flex-col gap-1 text-sm text-zinc-700">
-            Season Name *
+            Trip Name *
             <input
               required
               value={seasonName}
@@ -312,7 +312,7 @@ export default function AdminPage() {
             disabled={submitting}
             className="rounded bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
           >
-            {submitting ? "Creating..." : "Create Season"}
+            {submitting ? "Creating..." : "Create Trip"}
           </button>
         </form>
       )}
@@ -365,7 +365,7 @@ export default function AdminPage() {
         <form onSubmit={handleAddRound} className="trip-card space-y-4 rounded-lg p-5">
           <div className="text-base font-semibold text-zinc-900">Add Round</div>
           <label className="flex flex-col gap-1 text-sm text-zinc-700">
-            Season *
+            Trip *
             <select
               required
               value={roundSeasonId}
@@ -373,7 +373,7 @@ export default function AdminPage() {
               className={inputClass}
             >
               {seasons.length === 0 && (
-                <option value="">No seasons yet — create one first</option>
+                <option value="">No trips yet — create one first</option>
               )}
               {seasons.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -460,7 +460,7 @@ export default function AdminPage() {
           <div className="text-base font-semibold text-zinc-900">Add Historical Round</div>
           <p className="text-xs text-zinc-500">Enter a past round and scores in one step.</p>
           <label className="flex flex-col gap-1 text-sm text-zinc-700">
-            Season *
+            Trip *
             <select
               required
               value={histSeasonId}
@@ -468,7 +468,7 @@ export default function AdminPage() {
               className={inputClass}
             >
               {seasons.length === 0 && (
-                <option value="">No seasons yet — create one first</option>
+                <option value="">No trips yet — create one first</option>
               )}
               {seasons.map((s) => (
                 <option key={s.id} value={s.id}>

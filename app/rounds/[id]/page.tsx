@@ -399,7 +399,7 @@ export default function RoundDetailPage() {
         <div className="mb-3 text-base font-semibold text-zinc-900">Leaderboard + Entry</div>
 
         {leaderboard.length === 0 && (
-          <p className="text-sm text-zinc-500">No players in this season yet. Add players from the Admin page.</p>
+          <p className="text-sm text-zinc-500">No players in this trip yet. Add players from the Admin page.</p>
         )}
 
         <div className="space-y-3 sm:hidden">

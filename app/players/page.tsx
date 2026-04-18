@@ -27,7 +27,7 @@ export default async function PlayersPage() {
           Players
         </h1>
         <p className="text-base text-zinc-700">
-          {season?.name ?? "Trip season"} roster.
+          {season?.name ?? "Trip"} roster.
         </p>
       </div>
 

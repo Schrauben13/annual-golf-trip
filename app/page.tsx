@@ -66,7 +66,7 @@ export default async function Home() {
 
       <div className="trip-card rounded-lg p-5 text-sm text-zinc-700">
         <div className="text-base font-semibold text-zinc-900">
-          {season?.name ?? "Trip Season"}
+          {season?.name ?? "Trip"}
         </div>
         <div>Dates: May 11, 2026 to May 13, 2026</div>
         <div className="mt-2">
